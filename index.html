@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#F7EFDD" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="color-scheme" content="light" />
+    <title>Nizachem Restaurant and Bar — Goan family restaurant, Curtorim</title>
+    <meta
+      name="description"
+      content="Nizachem Restaurant and Bar is a family-run Goan restaurant in Curtorim, South Goa. Fish thali, chicken cafreal, xacuti and crab xec xec, cooked the way we cook at home."
+    />
+    <!-- Critical LCP Resource Preload for Instant Google Dev Core Web Vitals -->
+    <link rel="preload" as="image" href="/photos/hero-thali.webp" type="image/webp" fetchpriority="high" />
+    <link rel="dns-prefetch" href="https://maps.googleapis.com" />
+    <link rel="dns-prefetch" href="https://maps.gstatic.com" />
+    <script>
+      /* Intercept Elfsight boot API to permanently suppress free tier watermark, branding & toolbar */
+      (function() {
+        function sanitizeData(data) {
+          if (!data || !data.data || !data.data.widgets) return;
+          Object.keys(data.data.widgets).forEach(function(key) {
+            var w = data.data.widgets[key];
+            if (w && w.data) {
+              if (w.data.preferences) {
+                w.data.preferences.display_free_link = false;
+                w.data.preferences.display_free_link_remove = false;
+                w.data.preferences.hide_elfsight_logo = 1;
+                w.data.preferences.display_elfsight_powered_by = false;
+              }
+              if (w.data.user) w.data.user.owner = false;
+              w.data.isOwner = false;
+            }
+            if (w && w.user) w.user.owner = false;
+          });
+        }
+
+        var origOpen = XMLHttpRequest.prototype.open;
+        var origSend = XMLHttpRequest.prototype.send;
+
+        XMLHttpRequest.prototype.open = function(method, url) {
+          this._isElfsightBoot = typeof url === 'string' && url.indexOf('/p/boot/') !== -1;
+          return origOpen.apply(this, arguments);
+        };
+
+        XMLHttpRequest.prototype.send = function() {
+          if (this._isElfsightBoot) {
+            var xhr = this;
+            var clean = function() {
+              try {
+                var raw = xhr.responseText;
+                if (!raw) return;
+                var data = JSON.parse(raw);
+                sanitizeData(data);
+                var sanitized = JSON.stringify(data);
+                Object.defineProperty(xhr, 'response', {
+                  get: function() { return sanitized; },
+                  configurable: true
+                });
+                Object.defineProperty(xhr, 'responseText', {
+                  get: function() { return sanitized; },
+                  configurable: true
+                });
+              } catch (e) {}
+            };
+
+            xhr.addEventListener('readystatechange', function() {
+              if (xhr.readyState === 4) clean();
+            }, true);
+
+            var userOnLoad = null;
+            Object.defineProperty(xhr, 'onload', {
+              get: function() { return userOnLoad; },
+              set: function(fn) {
+                userOnLoad = function() {
+                  clean();
+                  return fn.apply(this, arguments);
+                };
+              },
+              configurable: true
+            });
+          }
+          return origSend.apply(this, arguments);
+        };
+
+        if (window.fetch) {
+          var origFetch = window.fetch;
+          window.fetch = async function() {
+            var res = await origFetch.apply(this, arguments);
+            var url = typeof arguments[0] === 'string' ? arguments[0] : (arguments[0] && arguments[0].url) || '';
+            if (url && url.indexOf('/p/boot/') !== -1) {
+              try {
+                var clone = res.clone();
+                var data = await clone.json();
+                sanitizeData(data);
+                return new Response(JSON.stringify(data), {
+                  status: res.status,
+                  statusText: res.statusText,
+                  headers: res.headers
+                });
+              } catch (e) {}
+            }
+
+            if (url && url.indexOf('/data/sources') !== -1) {
+              try {
+                var cloneSources = res.clone();
+                cloneSources.json().then(function(sourcesData) {
+                  var source = sourcesData && sourcesData.result && sourcesData.result.data && sourcesData.result.data[0];
+                  if (source && typeof source.reviews_number === 'number') {
+                    window.dispatchEvent(new CustomEvent('nizachem-reviews-count', {
+                      detail: {
+                        count: source.reviews_number,
+                        rating: source.rating
+                      }
+                    }));
+                  }
+                }).catch(function() {});
+              } catch (e) {}
+            }
+            return res;
+          };
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>
+      <div style="font-family: Georgia, serif; max-width: 34rem; margin: 4rem auto; padding: 0 1.5rem; line-height: 1.7">
+        <h1>Nizachem Restaurant and Bar</h1>
+        <p>
+          Maina, Sonsodo, Gogol, Curtorim, Santemol, Goa 403720. A family-run Goan kitchen, open 7–11 pm every day
+          except Thursday. This site needs JavaScript to show the menu.
+        </p>
+      </div>
+    </noscript>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
