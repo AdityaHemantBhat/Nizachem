@@ -57,19 +57,20 @@ export function Reviews() {
     el.scrollBy({ left: dir * step, behavior: 'smooth' })
   }
 
-  // Pointer drag to scroll for mouse & touch
+  // Pointer drag to scroll for mouse only (never hijack touch)
   const isDown = useRef(false)
   const startX = useRef(0)
   const scrollLeftPos = useRef(0)
 
   const onPointerDown = (e) => {
+    if (e.pointerType !== 'mouse') return
     isDown.current = true
     startX.current = e.pageX - (scrollerRef.current?.offsetLeft || 0)
     scrollLeftPos.current = scrollerRef.current?.scrollLeft || 0
   }
 
   const onPointerMove = (e) => {
-    if (!isDown.current) return
+    if (!isDown.current || e.pointerType !== 'mouse') return
     const x = e.pageX - (scrollerRef.current?.offsetLeft || 0)
     const walk = (x - startX.current) * 1.4
     if (scrollerRef.current) scrollerRef.current.scrollLeft = scrollLeftPos.current - walk
@@ -413,7 +414,6 @@ export function Reviews() {
         {/* Scroller Container */}
         <div
           ref={scrollerRef}
-          data-lenis-prevent="true"
           onScroll={handleScroll}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
@@ -421,7 +421,6 @@ export function Reviews() {
           onPointerLeave={onPointerUp}
           style={{
             WebkitOverflowScrolling: 'touch',
-            touchAction: 'pan-x pan-y',
             overscrollBehaviorX: 'contain',
           }}
           className="overflow-x-auto lg:overflow-visible snap-x snap-mandatory lg:snap-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden py-2 cursor-grab active:cursor-grabbing"

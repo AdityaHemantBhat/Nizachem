@@ -247,34 +247,34 @@ export function Nav() {
                 </Button>
               </span>
 
-              {/* Luxury Icon-Only Hamburger / Close Morpher (No text) */}
+              {/* Luxury Icon-Only Hamburger / Close Morpher (Colorful Two-Tone) */}
               <button
                 ref={toggleRef}
                 type="button"
                 onClick={() => setOpen((v) => !v)}
                 aria-expanded={open}
                 aria-controls="mobile-menu"
-                className={`group relative flex size-11 items-center justify-center rounded-full transition-colors duration-200 active:scale-95 lg:hidden shadow-xs select-none ${open
-                  ? 'bg-chilli text-cream border border-chilli-deep'
-                  : 'bg-cream/90 text-ink border border-ink/15 hoverable:hover:bg-ivory'
+                className={`group relative flex size-11 items-center justify-center rounded-full transition-all duration-300 ease-out-expo active:scale-90 lg:hidden shadow-xs select-none ${open
+                  ? 'bg-chilli text-cream border border-chilli-deep shadow-[0_4px_18px_rgba(194,65,12,0.4)]'
+                  : 'bg-cream/90 text-ink border border-ink/15 hoverable:hover:border-chilli/40 hoverable:hover:bg-ivory'
                   }`}
                 aria-label={open ? 'Close navigation menu' : 'Open navigation menu'}
               >
-                {/* Clean Hardware-Accelerated Hamburger / Close Icon */}
-                <div className="relative size-5 flex items-center justify-center pointer-events-none">
+                {/* Animated Staggered Morpher Bars — Two-Tone Colorful */}
+                <span className="relative flex size-5 items-center justify-center pointer-events-none" aria-hidden="true">
                   <span
-                    className="absolute h-[2px] w-5 rounded-full bg-current transition-transform duration-300 ease-out will-change-transform"
-                    style={{
-                      transform: open ? 'rotate(45deg)' : 'translateY(-4px)',
-                    }}
+                    className={`absolute h-[2px] rounded-full transition-all duration-300 ease-out-expo ${open
+                      ? 'w-5 bg-cream rotate-45'
+                      : 'w-5 bg-ink -translate-y-1 group-hover:bg-chilli'
+                      }`}
                   />
                   <span
-                    className="absolute h-[2px] w-5 rounded-full bg-current transition-transform duration-300 ease-out will-change-transform"
-                    style={{
-                      transform: open ? 'rotate(-45deg)' : 'translateY(4px)',
-                    }}
+                    className={`absolute h-[2px] rounded-full transition-all duration-300 ease-out-expo ${open
+                      ? 'w-5 bg-cream -rotate-45'
+                      : 'w-3.5 bg-chilli translate-y-1 translate-x-[3px] group-hover:w-5 group-hover:translate-x-0'
+                      }`}
                   />
-                </div>
+                </span>
               </button>
             </div>
           </div>

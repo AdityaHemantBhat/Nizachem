@@ -88,20 +88,20 @@ export function SignatureDishes() {
     el.scrollBy({ left: dir * step, behavior: 'smooth' })
   }
 
-  // Pointer drag to scroll for mouse & touch
+  // Pointer drag to scroll for mouse only (never hijack touch)
   const isDown = useRef(false)
   const startX = useRef(0)
   const scrollLeftPos = useRef(0)
 
   const onPointerDown = (e) => {
-    if (pinned) return
+    if (pinned || e.pointerType !== 'mouse') return
     isDown.current = true
     startX.current = e.pageX - (scrollerRef.current?.offsetLeft || 0)
     scrollLeftPos.current = scrollerRef.current?.scrollLeft || 0
   }
 
   const onPointerMove = (e) => {
-    if (!isDown.current || pinned) return
+    if (!isDown.current || pinned || e.pointerType !== 'mouse') return
     const x = e.pageX - (scrollerRef.current?.offsetLeft || 0)
     const walk = (x - startX.current) * 1.4
     if (scrollerRef.current) scrollerRef.current.scrollLeft = scrollLeftPos.current - walk
@@ -166,7 +166,6 @@ export function SignatureDishes() {
 
       <div
         ref={scrollerRef}
-        data-lenis-prevent="true"
         onScroll={handleScroll}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
@@ -174,7 +173,6 @@ export function SignatureDishes() {
         onPointerLeave={onPointerUp}
         style={{
           WebkitOverflowScrolling: 'touch',
-          touchAction: 'pan-x pan-y',
           overscrollBehaviorX: 'contain',
         }}
         className={`mt-6 sm:mt-8 lg:mt-8 ${pinned
@@ -184,7 +182,7 @@ export function SignatureDishes() {
       >
         <ul
           ref={track}
-          className="flex w-max gap-6 px-5 sm:px-8 lg:gap-8 lg:px-12 pb-4 touch-pan-x"
+          className="flex w-max gap-6 px-5 sm:px-8 lg:gap-8 lg:px-12 pb-4"
         >
           {site.signature.map((dish, i) => (
             <li
