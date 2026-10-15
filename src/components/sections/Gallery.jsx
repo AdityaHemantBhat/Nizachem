@@ -395,6 +395,7 @@ export function Gallery({
                       <div className="relative w-full overflow-hidden rounded-[18px] sm:rounded-[22px] bg-cream-deep aspect-[16/10]">
                         <Photo
                           photo={item}
+                          priority={true}
                           ratio={null}
                           sizes="(min-width: 1024px) 480px, 85vw"
                           className="size-full"

@@ -207,7 +207,6 @@ const galleryItems = [
 
 export default function GalleryPage() {
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [peekIndex, setPeekIndex] = useState(1)
   const [direction, setDirection] = useState(1)
   const [isPlaying, setIsPlaying] = useState(false)
   const [viewMode, setViewMode] = useState('deck') // 'deck' | 'spread'
@@ -216,10 +215,11 @@ export default function GalleryPage() {
   const touchStartX = useRef(0)
   const closeZoomRef = useRef(null)
 
+  const peekIndex = (currentIndex + 1) % galleryItems.length
   const currentItem = galleryItems[currentIndex]
   const peekItem = galleryItems[peekIndex]
 
-  // Advance photo in deck — keep peekIndex at the incoming photo during transition
+  // Advance photo in deck
   const handleNext = useCallback(() => {
     setDirection(1)
     setCurrentIndex((prev) => (prev + 1) % galleryItems.length)
@@ -228,15 +228,13 @@ export default function GalleryPage() {
   // Retreat photo in deck
   const handlePrev = useCallback(() => {
     setDirection(-1)
-    setPeekIndex(currentIndex)
     setCurrentIndex((prev) => (prev - 1 + galleryItems.length) % galleryItems.length)
-  }, [currentIndex])
+  }, [])
 
   // Jump to specific photo
   const handleSelect = (idx) => {
     setDirection(idx > currentIndex ? 1 : -1)
     setCurrentIndex(idx)
-    setPeekIndex((idx + 1) % galleryItems.length)
     if (viewMode === 'spread') {
       setViewMode('deck')
     }
@@ -445,9 +443,6 @@ export default function GalleryPage() {
                     <motion.div
                       key={currentItem.id}
                       custom={direction}
-                      onAnimationComplete={() => {
-                        setPeekIndex((currentIndex + 1) % galleryItems.length)
-                      }}
                       variants={{
                         enter: (dir) => ({
                           x: dir > 0 ? 80 : -80,
@@ -500,6 +495,8 @@ export default function GalleryPage() {
                             <img
                               src={`/photos/${currentItem.file}`}
                               alt={currentItem.title}
+                              loading="eager"
+                              decoding="async"
                               className="size-full object-cover select-none transition-transform duration-700 ease-out group-hover:scale-103"
                             />
                           </picture>

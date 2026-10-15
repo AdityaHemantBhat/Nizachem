@@ -1,8 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 /**
  * Renders /photos/<file> with modern WebP support, fallback, and high-end skeleton shimmer loader.
- * Pass ratio={null} to fill a sized parent instead of setting an aspect ratio.
+ * Robust on mobile and desktop: handles cached images, eager decoding, and prevents stalled shimmers.
  */
 export function Photo({
   photo,
@@ -15,6 +15,39 @@ export function Photo({
 }) {
   const [loaded, setLoaded] = useState(false)
   const [failed, setFailed] = useState(!photo?.file)
+  const imgRef = useRef(null)
+
+  const rawFile = photo?.file || ''
+  const baseName = rawFile.replace(/\.(jpg|jpeg|png)$/i, '')
+  const webpFile = baseName ? `${baseName}.webp` : ''
+
+  // Sync state when photo changes or if image is already cached in browser memory
+  useEffect(() => {
+    setFailed(!photo?.file)
+    if (imgRef.current?.complete && imgRef.current?.naturalWidth > 0) {
+      setLoaded(true)
+    } else {
+      setLoaded(false)
+    }
+  }, [photo?.file])
+
+  // Safety fallback: prevents images from being stuck behind shimmer if onLoad was swallowed by cache/mobile
+  useEffect(() => {
+    if (loaded || failed) return
+    const timer = setTimeout(() => {
+      if (imgRef.current?.complete) {
+        if (imgRef.current.naturalWidth > 0) {
+          setLoaded(true)
+        } else {
+          setFailed(true)
+        }
+      } else {
+        // Force reveal so mobile users never see an indefinite loading spinner
+        setLoaded(true)
+      }
+    }, 1000)
+    return () => clearTimeout(timer)
+  }, [loaded, failed, photo?.file])
 
   const ratioStyle = ratio
     ? (() => {
@@ -25,10 +58,6 @@ export function Photo({
 
   const width = ratioStyle?.width ?? 1200
   const height = ratioStyle?.height ?? 1500
-
-  const rawFile = photo?.file || ''
-  const baseName = rawFile.replace(/\.(jpg|jpeg|png)$/i, '')
-  const webpFile = baseName ? `${baseName}.webp` : ''
 
   return (
     <div
@@ -41,7 +70,7 @@ export function Photo({
       {!loaded && !failed && (
         <div
           aria-hidden="true"
-          className="absolute inset-0 z-10 overflow-hidden bg-cream-deep/90 flex items-center justify-center pointer-events-none"
+          className="absolute inset-0 z-10 overflow-hidden bg-cream-deep flex items-center justify-center pointer-events-none transition-opacity duration-300"
         >
           {/* Shimmer light sweep */}
           <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/30 to-transparent" />
@@ -65,8 +94,14 @@ export function Photo({
             <source type="image/webp" srcSet={`/photos/${webpFile}`} />
           )}
           <img
+            ref={(el) => {
+              imgRef.current = el
+              if (el && el.complete && el.naturalWidth > 0 && !loaded) {
+                setLoaded(true)
+              }
+            }}
             src={`/photos/${photo.file}`}
-            alt={photo.alt}
+            alt={photo.alt || ''}
             width={width}
             height={height}
             sizes={sizes}
@@ -75,7 +110,7 @@ export function Photo({
             fetchPriority={priority ? 'high' : 'auto'}
             onLoad={() => setLoaded(true)}
             onError={() => setFailed(true)}
-            className={`absolute inset-0 size-full object-cover transition-opacity duration-500 ease-out ${
+            className={`absolute inset-0 size-full object-cover transition-opacity duration-300 ease-out ${
               loaded ? 'opacity-100' : 'opacity-0'
             } ${imgClassName}`}
           />
