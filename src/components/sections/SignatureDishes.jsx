@@ -23,7 +23,18 @@ const dishBadges = {
 export function SignatureDishes() {
   const section = useRef(null)
   const track = useRef(null)
+  const scrollerRef = useRef(null)
   const [pinned, setPinned] = useState(false)
+  const [canScrollLeft, setCanScrollLeft] = useState(false)
+  const [canScrollRight, setCanScrollRight] = useState(true)
+
+  const handleScroll = (e) => {
+    if (pinned) return
+    const el = e.currentTarget
+    const maxScroll = el.scrollWidth - el.clientWidth
+    setCanScrollLeft(el.scrollLeft > 10)
+    setCanScrollRight(el.scrollLeft < maxScroll - 10)
+  }
 
   useGSAP(() => {
     const mm = gsap.matchMedia()
@@ -63,6 +74,43 @@ export function SignatureDishes() {
     ScrollTrigger.refresh()
   }, [pinned])
 
+  const scrollByCard = (dir) => {
+    const el = scrollerRef.current
+    if (!el) return
+
+    if (pinned) {
+      window.scrollBy({ top: dir * 320, behavior: 'smooth' })
+      return
+    }
+
+    const card = el.querySelector('li')
+    const step = card ? card.offsetWidth + 24 : 320
+    el.scrollBy({ left: dir * step, behavior: 'smooth' })
+  }
+
+  // Pointer drag to scroll for mouse & touch
+  const isDown = useRef(false)
+  const startX = useRef(0)
+  const scrollLeftPos = useRef(0)
+
+  const onPointerDown = (e) => {
+    if (pinned) return
+    isDown.current = true
+    startX.current = e.pageX - (scrollerRef.current?.offsetLeft || 0)
+    scrollLeftPos.current = scrollerRef.current?.scrollLeft || 0
+  }
+
+  const onPointerMove = (e) => {
+    if (!isDown.current || pinned) return
+    const x = e.pageX - (scrollerRef.current?.offsetLeft || 0)
+    const walk = (x - startX.current) * 1.4
+    if (scrollerRef.current) scrollerRef.current.scrollLeft = scrollLeftPos.current - walk
+  }
+
+  const onPointerUp = () => {
+    isDown.current = false
+  }
+
   return (
     <section
       ref={section}
@@ -81,23 +129,62 @@ export function SignatureDishes() {
               The ones people drive for.
             </h2>
           </div>
-          <div className="flex items-center gap-4">
-            <span className="kicker text-ink-soft hidden lg:inline-block">Scroll to explore</span>
-            <p className="kicker text-ink-soft lg:hidden">Swipe to explore →</p>
+          
+          {/* Interactive Navigation & Swipe Indicator for all screens */}
+          <div className="flex items-center gap-3 shrink-0">
+            {/* Prominent Swipe Pill for Mobile & Tablet */}
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-chilli/25 bg-ivory/95 px-3.5 py-1.5 text-xs font-semibold text-ink shadow-2xs select-none whitespace-nowrap shrink-0">
+              <span className="inline-block size-2 rounded-full bg-chilli animate-ping shrink-0" />
+              <span>Swipe to explore</span>
+              <span className="font-bold text-chilli ml-0.5 animate-pulse">→</span>
+            </div>
+
+            {/* Tap Arrow Buttons for Quick Horizontal Browsing */}
+            <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                type="button"
+                onClick={() => scrollByCard(-1)}
+                disabled={!pinned && !canScrollLeft}
+                aria-label="Previous dishes"
+                className="size-9 sm:size-10 rounded-full border border-ink/15 bg-ivory text-ink flex items-center justify-center hover:bg-cream hover:border-chilli/40 active:scale-95 transition-all shadow-xs disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+              >
+                <svg viewBox="0 0 24 24" className="size-4.5 stroke-current stroke-2 fill-none"><path d="M15 18l-6-6 6-6" /></svg>
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollByCard(1)}
+                disabled={!pinned && !canScrollRight}
+                aria-label="Next dishes"
+                className="size-9 sm:size-10 rounded-full border border-ink/15 bg-ivory text-ink flex items-center justify-center hover:bg-cream hover:border-chilli/40 active:scale-95 transition-all shadow-xs disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+              >
+                <svg viewBox="0 0 24 24" className="size-4.5 stroke-current stroke-2 fill-none"><path d="M9 18l6-6-6-6" /></svg>
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
       <div
-        className={`mt-6 sm:mt-8 lg:mt-8 ${
-          pinned
+        ref={scrollerRef}
+        data-lenis-prevent="true"
+        onScroll={handleScroll}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerLeave={onPointerUp}
+        style={{
+          WebkitOverflowScrolling: 'touch',
+          touchAction: 'pan-x pan-y',
+          overscrollBehaviorX: 'contain',
+        }}
+        className={`mt-6 sm:mt-8 lg:mt-8 ${pinned
             ? 'overflow-hidden'
-            : 'overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'
-        }`}
+            : 'overflow-x-auto snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden cursor-grab active:cursor-grabbing'
+          }`}
       >
         <ul
           ref={track}
-          className="flex w-max gap-6 px-5 sm:px-8 lg:gap-8 lg:px-12 pb-4"
+          className="flex w-max gap-6 px-5 sm:px-8 lg:gap-8 lg:px-12 pb-4 touch-pan-x"
         >
           {site.signature.map((dish, i) => (
             <li

@@ -176,10 +176,10 @@ export function Preloader({ onDone }) {
       })
     }
 
-    // Safety timeout: max 800ms wait for assets, never block user
+    // Safety timeout: max 250ms wait for assets, never block user
     const safety = setTimeout(() => {
       if (!cancelled) setAssetsReady(true)
-    }, 800)
+    }, 250)
 
     Promise.all(items.map((i) => i.promise)).then(() => {
       if (!cancelled) setAssetsReady(true)

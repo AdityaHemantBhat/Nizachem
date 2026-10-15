@@ -219,6 +219,10 @@ export function Gallery({
     ScrollTrigger.refresh()
   }, [pinned])
 
+  const scrollerRef = useRef(null)
+  const [canScrollLeft, setCanScrollLeft] = useState(false)
+  const [canScrollRight, setCanScrollRight] = useState(true)
+
   // Mobile horizontal scroll tracking
   const handleMobileScroll = (e) => {
     if (pinned) return
@@ -229,7 +233,46 @@ export function Gallery({
       setProgress(prog)
       const idx = Math.min(list.length - 1, Math.max(0, Math.round(prog * (list.length - 1))))
       setActiveIndex(idx)
+      setCanScrollLeft(el.scrollLeft > 10)
+      setCanScrollRight(el.scrollLeft < maxScroll - 10)
     }
+  }
+
+  const scrollByCard = (dir) => {
+    const el = scrollerRef.current
+    if (!el) return
+
+    if (pinned) {
+      window.scrollBy({ top: dir * 320, behavior: 'smooth' })
+      return
+    }
+
+    const card = el.querySelector('[data-gallery-card]')
+    const step = card ? card.offsetWidth + 24 : 320
+    el.scrollBy({ left: dir * step, behavior: 'smooth' })
+  }
+
+  // Pointer drag to scroll for mouse & touch
+  const isDown = useRef(false)
+  const startX = useRef(0)
+  const scrollLeftPos = useRef(0)
+
+  const onPointerDown = (e) => {
+    if (pinned) return
+    isDown.current = true
+    startX.current = e.pageX - (scrollerRef.current?.offsetLeft || 0)
+    scrollLeftPos.current = scrollerRef.current?.scrollLeft || 0
+  }
+
+  const onPointerMove = (e) => {
+    if (!isDown.current || pinned) return
+    const x = e.pageX - (scrollerRef.current?.offsetLeft || 0)
+    const walk = (x - startX.current) * 1.4
+    if (scrollerRef.current) scrollerRef.current.scrollLeft = scrollLeftPos.current - walk
+  }
+
+  const onPointerUp = () => {
+    isDown.current = false
   }
 
   return (
@@ -242,7 +285,7 @@ export function Gallery({
       <div className="mx-auto w-full max-w-[1400px] px-5 sm:px-8 lg:px-12">
         {showHeader && (
           <div className="flex flex-wrap items-end justify-between gap-6 pb-6 sm:pb-8">
-            <div>
+            <div className="max-w-xl">
               <HeritageBadge
                 kok="नदर"
                 label="A Glimpse of Nizachem"
@@ -251,16 +294,42 @@ export function Gallery({
               <h2 id="gallery-heading" className="mt-4 text-display-2 display-wonk text-ink">
                 {heading}
               </h2>
-              <p className="mt-2 text-sm sm:text-base text-ink-muted max-w-xl">
-                Wander through the spaces built by our own hands in Curtorim — scroll down to explore each room.
+              <p className="mt-2 text-sm sm:text-base text-ink-muted">
+                Wander through the spaces built by our own hands in Curtorim — swipe or scroll to explore each room.
               </p>
             </div>
 
-            {limit && (
-              <Button to="/gallery" variant="outline" showArrow className="inline-flex">
-                View all photos
-              </Button>
-            )}
+            {/* Interactive Navigation & Swipe Indicator */}
+            <div className="flex items-center gap-3 shrink-0">
+              {/* Prominent Swipe Pill: Never wraps */}
+              <div className="inline-flex items-center gap-1.5 rounded-full border border-sea/25 bg-ivory/95 px-3.5 py-1.5 text-xs font-semibold text-ink shadow-2xs select-none whitespace-nowrap shrink-0">
+                <span className="inline-block size-2 rounded-full bg-sea animate-ping shrink-0" />
+                <span>Swipe to explore</span>
+                <span className="font-bold text-sea ml-0.5 animate-pulse">→</span>
+              </div>
+
+              {/* Tap Arrow Buttons for Quick Horizontal Browsing */}
+              <div className="flex items-center gap-1.5 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => scrollByCard(-1)}
+                  disabled={!pinned && !canScrollLeft}
+                  aria-label="Previous room photo"
+                  className="size-9 sm:size-10 rounded-full border border-ink/15 bg-ivory text-ink flex items-center justify-center hover:bg-cream hover:border-sea/40 active:scale-95 transition-all shadow-xs disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  <svg viewBox="0 0 24 24" className="size-4.5 stroke-current stroke-2 fill-none"><path d="M15 18l-6-6 6-6" /></svg>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => scrollByCard(1)}
+                  disabled={!pinned && !canScrollRight}
+                  aria-label="Next room photo"
+                  className="size-9 sm:size-10 rounded-full border border-ink/15 bg-ivory text-ink flex items-center justify-center hover:bg-cream hover:border-sea/40 active:scale-95 transition-all shadow-xs disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  <svg viewBox="0 0 24 24" className="size-4.5 stroke-current stroke-2 fill-none"><path d="M9 18l6-6-6-6" /></svg>
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>
@@ -283,8 +352,19 @@ export function Gallery({
 
         {/* Scroller Container */}
         <div
+          ref={scrollerRef}
+          data-lenis-prevent="true"
           onScroll={handleMobileScroll}
-          className="overflow-x-auto lg:overflow-visible snap-x snap-mandatory lg:snap-none scrollbar-none py-2"
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerLeave={onPointerUp}
+          style={{
+            WebkitOverflowScrolling: 'touch',
+            touchAction: 'pan-x pan-y',
+            overscrollBehaviorX: 'contain',
+          }}
+          className="overflow-x-auto lg:overflow-visible snap-x snap-mandatory lg:snap-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden py-2 cursor-grab active:cursor-grabbing"
         >
           {/* Horizontal Track with Intrinsic Max Width for Flawless ScrollTrigger Travel */}
           <div
@@ -308,11 +388,10 @@ export function Gallery({
                   >
                     {/* Clean Box-Type Architectural Frame (Zero Arch Cutouts) */}
                     <div
-                      className={`relative w-[82vw] max-w-[480px] sm:w-[440px] lg:w-[480px] rounded-[24px] sm:rounded-[28px] bg-ivory p-3 sm:p-3.5 border transition-all duration-500 ease-out ${
-                        isCenter
+                      className={`relative w-[82vw] max-w-[480px] sm:w-[440px] lg:w-[480px] rounded-[24px] sm:rounded-[28px] bg-ivory p-3 sm:p-3.5 border transition-all duration-500 ease-out ${isCenter
                           ? 'border-ink/25 shadow-[0_20px_48px_-12px_rgba(24,18,12,0.18)] scale-100'
                           : 'border-ink/10 shadow-[0_10px_28px_-10px_rgba(24,18,12,0.1)] opacity-90 hover:opacity-100 hover:border-ink/20'
-                      }`}
+                        }`}
                     >
                       {/* Image Box with Landscape Ratio */}
                       <div className="relative w-full overflow-hidden rounded-[18px] sm:rounded-[22px] bg-cream-deep aspect-[16/10]">

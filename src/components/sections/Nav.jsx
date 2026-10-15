@@ -67,14 +67,14 @@ export function Nav() {
     const lenis = getLenis()
     if (open) {
       lenis?.stop()
-      document.documentElement.style.overflow = 'hidden'
+      document.body.style.overflow = 'hidden'
       firstLink.current?.focus()
       // Predictive prefetch when drawer opens
       links.forEach((l) => preloadRoute(l.to))
       preloadRoute('/book')
     } else {
       lenis?.start()
-      document.documentElement.style.overflow = ''
+      document.body.style.overflow = ''
     }
     const onKey = (e) => e.key === 'Escape' && setOpen(false)
     window.addEventListener('keydown', onKey)
@@ -254,44 +254,44 @@ export function Nav() {
                 onClick={() => setOpen((v) => !v)}
                 aria-expanded={open}
                 aria-controls="mobile-menu"
-                className={`group relative flex size-11 items-center justify-center rounded-full transition-all duration-300 ease-out-expo active:scale-90 lg:hidden shadow-xs select-none ${open
-                  ? 'bg-chilli text-cream border border-chilli-deep shadow-[0_4px_18px_rgba(194,65,12,0.4)]'
-                  : 'bg-cream/90 text-ink border border-ink/15 hoverable:hover:border-chilli/40 hoverable:hover:bg-ivory'
+                className={`group relative flex size-11 items-center justify-center rounded-full transition-colors duration-200 active:scale-95 lg:hidden shadow-xs select-none ${open
+                  ? 'bg-chilli text-cream border border-chilli-deep'
+                  : 'bg-cream/90 text-ink border border-ink/15 hoverable:hover:bg-ivory'
                   }`}
                 aria-label={open ? 'Close navigation menu' : 'Open navigation menu'}
               >
-                {/* Animated Staggered Morpher Bars */}
-                <span className="relative flex size-5 items-center justify-center" aria-hidden="true">
+                {/* Clean Hardware-Accelerated Hamburger / Close Icon */}
+                <div className="relative size-5 flex items-center justify-center pointer-events-none">
                   <span
-                    className={`absolute h-[2px] rounded-full transition-all duration-300 ease-out-expo ${open
-                      ? 'w-5 bg-cream rotate-45'
-                      : 'w-5 bg-ink -translate-y-1 group-hover:bg-chilli'
-                      }`}
+                    className="absolute h-[2px] w-5 rounded-full bg-current transition-transform duration-300 ease-out will-change-transform"
+                    style={{
+                      transform: open ? 'rotate(45deg)' : 'translateY(-4px)',
+                    }}
                   />
                   <span
-                    className={`absolute h-[2px] rounded-full transition-all duration-300 ease-out-expo ${open
-                      ? 'w-5 bg-cream -rotate-45'
-                      : 'w-3.5 bg-chilli translate-y-1 translate-x-[3px] group-hover:w-5 group-hover:translate-x-0'
-                      }`}
+                    className="absolute h-[2px] w-5 rounded-full bg-current transition-transform duration-300 ease-out will-change-transform"
+                    style={{
+                      transform: open ? 'rotate(-45deg)' : 'translateY(4px)',
+                    }}
                   />
-                </span>
+                </div>
               </button>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Morphed Mobile Navigation Drawer with Fluid Circular Wave Expansion */}
+      {/* Mobile Navigation Drawer with Silky Fast GPU Transition — Zero Flicker */}
       <AnimatePresence>
         {open && (
           <motion.div
             id="mobile-menu"
             key="mobile-menu"
-            initial={{ opacity: 0, clipPath: 'circle(0% at calc(100% - 36px) 38px)' }}
-            animate={{ opacity: 1, clipPath: 'circle(150% at calc(100% - 36px) 38px)' }}
-            exit={{ opacity: 0, clipPath: 'circle(0% at calc(100% - 36px) 38px)' }}
-            transition={{ duration: 0.44, ease: [0.19, 1, 0.22, 1] }}
-            className="fixed inset-0 z-40 flex flex-col bg-cream/98 backdrop-blur-2xl px-5 sm:px-8 pt-24 sm:pt-28 pb-8 lg:hidden overflow-y-auto"
+            initial={{ opacity: 0, y: -14 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -14 }}
+            transition={{ duration: 0.26, ease: [0.16, 1, 0.3, 1] }}
+            className="fixed inset-0 z-40 flex flex-col bg-cream px-5 sm:px-8 pt-24 sm:pt-28 pb-8 lg:hidden overflow-y-auto overscroll-contain will-change-[transform,opacity]"
           >
             {/* Organic Wave Cutout Canopy at bottom of mobile menu */}
             <div className="absolute bottom-0 inset-x-0 pointer-events-none opacity-20">

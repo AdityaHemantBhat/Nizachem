@@ -12,7 +12,7 @@ import { PageTransition } from '@/components/ui/PageTransition'
 import { Nav } from '@/components/sections/Nav'
 import { Footer } from '@/components/sections/Footer'
 
-const Home = lazy(() => import('@/pages/Home'))
+import Home from '@/pages/Home'
 const MenuPage = lazy(() => import('@/pages/MenuPage'))
 const StoryPage = lazy(() => import('@/pages/StoryPage'))
 const GalleryPage = lazy(() => import('@/pages/GalleryPage'))
@@ -24,9 +24,14 @@ export default function App() {
   const location = useLocation()
   const reduced = usePrefersReducedMotion()
   
-  // Instant render on revisit: only show preloader once per session
+  // Instant render on revisit or refresh: bypass preloader on reload
   const [showPreloader, setShowPreloader] = useState(() => {
     try {
+      if (typeof window !== 'undefined') {
+        const navEntries = window.performance?.getEntriesByType?.('navigation')
+        const isReload = navEntries?.[0]?.type === 'reload'
+        if (isReload) return false
+      }
       return sessionStorage.getItem('nizachem:preloader_seen') !== '1'
     } catch {
       return false
@@ -34,6 +39,11 @@ export default function App() {
   })
   const [introDone, setIntroDone] = useState(() => {
     try {
+      if (typeof window !== 'undefined') {
+        const navEntries = window.performance?.getEntriesByType?.('navigation')
+        const isReload = navEntries?.[0]?.type === 'reload'
+        if (isReload) return true
+      }
       return sessionStorage.getItem('nizachem:preloader_seen') === '1'
     } catch {
       return true

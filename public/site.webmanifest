@@ -1,0 +1,17 @@
+{
+  "name": "Nizachem Restaurant and Bar",
+  "short_name": "Nizachem",
+  "description": "Family-run Goan restaurant and bar in Curtorim, South Goa.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F7EFDD",
+  "theme_color": "#F7EFDD",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

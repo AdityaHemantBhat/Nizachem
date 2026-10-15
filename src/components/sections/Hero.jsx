@@ -95,7 +95,7 @@ export function Hero() {
     <section
       ref={section}
       aria-label="Welcome to Nizachem"
-      className="relative min-h-[100svh] overflow-hidden pt-28 pb-12 sm:pt-36 sm:pb-16 lg:pt-36 lg:pb-18 flex flex-col justify-center"
+      className="relative min-h-[100svh] overflow-hidden bg-cream pt-28 pb-12 sm:pt-36 sm:pb-16 lg:pt-36 lg:pb-18 flex flex-col justify-center"
     >
       {/* 1. Ambient Lighting & Atmospheric Sunset Warmth */}
       <div

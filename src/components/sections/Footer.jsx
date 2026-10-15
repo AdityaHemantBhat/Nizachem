@@ -73,7 +73,7 @@ export function Footer() {
         <WaveDivider fill={precedingFill} inverted height={82} curvy />
       </div>
 
-      <div className="mx-auto max-w-[1400px] px-4 pt-6 pb-12 sm:px-8 lg:px-12 lg:pt-10">
+      <div className="mx-auto max-w-[1400px] px-4 pt-6 pb-[calc(3rem+env(safe-area-inset-bottom,0px))] sm:px-8 lg:px-12 lg:pt-10">
         <div className="relative flex flex-wrap items-end justify-between gap-6">
           {/* Monumental Wordmark: Seamlessly alternates between English and Konkani in the EXACT same spot */}
           <div className="grid [grid-template-areas:'stack'] items-end min-w-0">

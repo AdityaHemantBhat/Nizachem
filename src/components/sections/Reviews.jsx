@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useGSAP } from '@gsap/react'
 import { gsap, ScrollTrigger } from '@/lib/animations/setup'
 import { site } from '@/content/site'
@@ -37,7 +37,47 @@ export function Reviews() {
 
   const reelSectionRef = useRef(null)
   const trackRef = useRef(null)
+  const scrollerRef = useRef(null)
   const scrollTriggerRef = useRef(null)
+  const [canScrollLeft, setCanScrollLeft] = useState(false)
+  const [canScrollRight, setCanScrollRight] = useState(true)
+
+  const handleScroll = (e) => {
+    const el = e.currentTarget
+    const maxScroll = el.scrollWidth - el.clientWidth
+    setCanScrollLeft(el.scrollLeft > 10)
+    setCanScrollRight(el.scrollLeft < maxScroll - 10)
+  }
+
+  const scrollByCard = (dir) => {
+    const el = scrollerRef.current
+    if (!el) return
+    const card = el.querySelector('[data-review-card]')
+    const step = card ? card.offsetWidth + 28 : 340
+    el.scrollBy({ left: dir * step, behavior: 'smooth' })
+  }
+
+  // Pointer drag to scroll for mouse & touch
+  const isDown = useRef(false)
+  const startX = useRef(0)
+  const scrollLeftPos = useRef(0)
+
+  const onPointerDown = (e) => {
+    isDown.current = true
+    startX.current = e.pageX - (scrollerRef.current?.offsetLeft || 0)
+    scrollLeftPos.current = scrollerRef.current?.scrollLeft || 0
+  }
+
+  const onPointerMove = (e) => {
+    if (!isDown.current) return
+    const x = e.pageX - (scrollerRef.current?.offsetLeft || 0)
+    const walk = (x - startX.current) * 1.4
+    if (scrollerRef.current) scrollerRef.current.scrollLeft = scrollLeftPos.current - walk
+  }
+
+  const onPointerUp = () => {
+    isDown.current = false
+  }
 
   // Lazy load Google Reviews widget script only when the section enters viewport
   useEffect(() => {
@@ -314,9 +354,43 @@ export function Reviews() {
             <span>More Diner Impressions from Curtorim</span>
           </div>
           <span className="hidden sm:inline-flex items-center gap-1.5 text-xs text-ink/40 font-medium">
-            <span>Scroll vertically to glide through reviews</span>
+            <span>Scroll vertically or swipe to glide through reviews</span>
             <span>→</span>
           </span>
+        </div>
+      </div>
+
+      {/* Interactive Controls & Swipe Indicator Bar */}
+      <div className="mx-auto max-w-[1400px] px-5 sm:px-8 lg:px-12 mt-6 flex items-center justify-between gap-4">
+        <div className="inline-flex items-center gap-2">
+          <span className="kicker text-ink-soft hidden sm:inline-block">Guest Impressions</span>
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-chilli/25 bg-ivory/95 px-3.5 py-1.5 text-xs font-semibold text-ink shadow-2xs select-none whitespace-nowrap shrink-0">
+            <span className="inline-block size-2 rounded-full bg-chilli animate-ping shrink-0" />
+            <span>Swipe to explore</span>
+            <span className="font-bold text-chilli ml-0.5 animate-pulse">→</span>
+          </div>
+        </div>
+
+        {/* Interactive Arrow Controls for all screens */}
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => scrollByCard(-1)}
+            disabled={!canScrollLeft}
+            aria-label="Previous review"
+            className="size-9 sm:size-10 rounded-full border border-ink/15 bg-ivory text-ink flex items-center justify-center hover:bg-cream hover:border-chilli/40 active:scale-95 transition-all shadow-xs disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+          >
+            <svg viewBox="0 0 24 24" className="size-4.5 stroke-current stroke-2 fill-none"><path d="M15 18l-6-6 6-6" /></svg>
+          </button>
+          <button
+            type="button"
+            onClick={() => scrollByCard(1)}
+            disabled={!canScrollRight}
+            aria-label="Next review"
+            className="size-9 sm:size-10 rounded-full border border-ink/15 bg-ivory text-ink flex items-center justify-center hover:bg-cream hover:border-chilli/40 active:scale-95 transition-all shadow-xs disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+          >
+            <svg viewBox="0 0 24 24" className="size-4.5 stroke-current stroke-2 fill-none"><path d="M9 18l6-6-6-6" /></svg>
+          </button>
         </div>
       </div>
 
@@ -337,7 +411,21 @@ export function Reviews() {
         />
 
         {/* Scroller Container */}
-        <div className="overflow-x-auto lg:overflow-visible snap-x snap-mandatory lg:snap-none scrollbar-none py-2">
+        <div
+          ref={scrollerRef}
+          data-lenis-prevent="true"
+          onScroll={handleScroll}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerLeave={onPointerUp}
+          style={{
+            WebkitOverflowScrolling: 'touch',
+            touchAction: 'pan-x pan-y',
+            overscrollBehaviorX: 'contain',
+          }}
+          className="overflow-x-auto lg:overflow-visible snap-x snap-mandatory lg:snap-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden py-2 cursor-grab active:cursor-grabbing"
+        >
           {/* Horizontal Track in One Line with w-max for Flawless ScrollTrigger Travel */}
           <div
             ref={trackRef}
