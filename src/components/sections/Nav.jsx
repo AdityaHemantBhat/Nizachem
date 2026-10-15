@@ -247,7 +247,7 @@ export function Nav() {
                 </Button>
               </span>
 
-              {/* Luxury Icon-Only Hamburger / Close Morpher (Colorful Two-Tone) */}
+              {/* Luxury Icon-Only Hamburger / Close Morpher (Colorful Two-Tone 2-Bar Morpher) */}
               <button
                 ref={toggleRef}
                 type="button"
@@ -260,17 +260,17 @@ export function Nav() {
                   }`}
                 aria-label={open ? 'Close navigation menu' : 'Open navigation menu'}
               >
-                {/* Animated Staggered Morpher Bars — Two-Tone Colorful */}
+                {/* 2-Bar Colorful Staggered Morpher: Top Ink Bar + Bottom Chilli Bar */}
                 <span className="relative flex size-5 items-center justify-center pointer-events-none" aria-hidden="true">
                   <span
                     className={`absolute h-[2px] rounded-full transition-all duration-300 ease-out-expo ${open
-                      ? 'w-5 bg-cream rotate-45'
+                      ? 'w-5 bg-cream rotate-45 translate-y-0'
                       : 'w-5 bg-ink -translate-y-1 group-hover:bg-chilli'
                       }`}
                   />
                   <span
                     className={`absolute h-[2px] rounded-full transition-all duration-300 ease-out-expo ${open
-                      ? 'w-5 bg-cream -rotate-45'
+                      ? 'w-5 bg-cream -rotate-45 translate-y-0'
                       : 'w-3.5 bg-chilli translate-y-1 translate-x-[3px] group-hover:w-5 group-hover:translate-x-0'
                       }`}
                   />

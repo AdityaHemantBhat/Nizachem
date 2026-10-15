@@ -24,31 +24,9 @@ export default function App() {
   const location = useLocation()
   const reduced = usePrefersReducedMotion()
   
-  // Instant render on revisit or refresh: bypass preloader on reload
-  const [showPreloader, setShowPreloader] = useState(() => {
-    try {
-      if (typeof window !== 'undefined') {
-        const navEntries = window.performance?.getEntriesByType?.('navigation')
-        const isReload = navEntries?.[0]?.type === 'reload'
-        if (isReload) return false
-      }
-      return sessionStorage.getItem('nizachem:preloader_seen') !== '1'
-    } catch {
-      return false
-    }
-  })
-  const [introDone, setIntroDone] = useState(() => {
-    try {
-      if (typeof window !== 'undefined') {
-        const navEntries = window.performance?.getEntriesByType?.('navigation')
-        const isReload = navEntries?.[0]?.type === 'reload'
-        if (isReload) return true
-      }
-      return sessionStorage.getItem('nizachem:preloader_seen') === '1'
-    } catch {
-      return true
-    }
-  })
+  // Always show preloader on every page load and refresh
+  const [showPreloader, setShowPreloader] = useState(true)
+  const [introDone, setIntroDone] = useState(false)
 
   // Idle route prefetching: strictly deferred so it never contends with initial homepage LCP
   useEffect(() => {
@@ -90,9 +68,6 @@ export default function App() {
   }, [location, reduced])
 
   const finishIntro = () => {
-    try {
-      sessionStorage.setItem('nizachem:preloader_seen', '1')
-    } catch {}
     setIntroDone(true)
     setShowPreloader(false)
   }
