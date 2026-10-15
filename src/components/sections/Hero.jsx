@@ -150,12 +150,12 @@ export function Hero() {
         {/* THE VISUAL TRIPTYCH: 3 Sculpted Goan Portals with Parallax     */}
         {/* ============================================================== */}
         <div className="relative mt-12 sm:mt-16 flex items-center justify-center">
-          {/* Background Azulejo Tile Accents */}
-          <div className="pointer-events-none absolute -top-8 -left-4 sm:left-4 z-20">
-            <AzulejoCorner position="top-left" size={54} className="text-chilli/60" />
+          {/* Background Azulejo Tile Accents — Positioned cleanly with generous clearance */}
+          <div className="pointer-events-none absolute -top-4 sm:-top-6 lg:-top-8 left-0 sm:left-4 z-20">
+            <AzulejoCorner position="top-left" size={42} className="text-chilli/50 sm:scale-110 lg:scale-125" />
           </div>
-          <div className="pointer-events-none absolute -bottom-8 -right-4 sm:right-4 z-20">
-            <AzulejoCorner position="bottom-right" size={54} className="text-chilli/60" />
+          <div className="pointer-events-none absolute bottom-1 sm:bottom-0 lg:-bottom-6 right-0 sm:right-4 z-20">
+            <AzulejoCorner position="bottom-right" size={42} className="text-chilli/50 sm:scale-110 lg:scale-125" />
           </div>
 
           <div className="relative w-full max-w-[1240px] flex items-center justify-center py-6">
@@ -309,15 +309,15 @@ export function Hero() {
         {/* ============================================================== */}
         {/* INTERACTIVE FLOATING RESERVATION COMMAND DOCK                   */}
         {/* ============================================================== */}
-        <div className="relative mt-8 sm:mt-12 z-20 mx-auto max-w-[880px]">
-          <div className="rounded-2xl border border-ink/12 bg-ivory/95 p-2.5 sm:p-3 shadow-[0_20px_50px_-12px_rgba(24,18,12,0.15)] backdrop-blur-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="relative mt-16 sm:mt-20 lg:mt-16 z-20 mx-auto max-w-[880px] px-3 sm:px-4 lg:px-0">
+          <div className="rounded-2xl sm:rounded-3xl border border-ink/12 bg-ivory/95 p-4 sm:p-5 md:p-3.5 shadow-[0_20px_50px_-12px_rgba(24,18,12,0.15)] backdrop-blur-xl flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-4.5 md:gap-4">
             {/* Live diner trust telemetry */}
             <a
               href="#reviews"
-              className="flex items-center gap-3.5 pl-4 sm:pl-6 py-1 group cursor-pointer transition-opacity hover:opacity-90"
+              className="flex items-center gap-3.5 px-2 sm:px-3 py-1 group cursor-pointer transition-opacity hover:opacity-90 w-full md:w-auto justify-center sm:justify-start"
               title="Jump to verified diner reviews"
             >
-              <div className="flex -space-x-2">
+              <div className="flex -space-x-2 shrink-0">
                 <span className="size-8 rounded-full border-2 border-ivory bg-chilli text-cream flex items-center justify-center text-xs font-bold shadow-xs">
                   ★
                 </span>
@@ -325,37 +325,39 @@ export function Hero() {
                   {typeof rating === 'number' ? rating.toFixed(1) : '5.0'}
                 </span>
               </div>
-              <div>
-                <p className="text-[0.78rem] font-semibold text-ink leading-tight flex items-center gap-1.5">
+              <div className="text-left">
+                <p className="text-[0.78rem] sm:text-[0.82rem] font-semibold text-ink leading-tight flex items-center gap-1.5">
                   <span>{animatedCount > 0 ? `${animatedCount}+` : `${reviewCount || 12}+`} Verified Diner Reviews</span>
                   {isLive && (
                     <span className="inline-block size-1.5 rounded-full bg-emerald-500 animate-pulse" title="Live Google Maps sync active" />
                   )}
                 </p>
-                <p className="text-[0.68rem] text-ink-soft">
+                <p className="text-[0.68rem] sm:text-[0.72rem] text-ink-soft mt-0.5">
                   Four tables · Reservations recommended
                 </p>
               </div>
             </a>
 
             {/* Primary & Secondary Dual CTAs */}
-            <div className="flex items-center gap-2.5 w-full sm:w-auto px-2 sm:px-0">
+            <div className="flex items-center gap-2.5 sm:gap-3 w-full md:w-auto px-1 sm:px-2 md:px-0 justify-center">
               <Button
                 to="/book"
                 variant="primary"
                 showArrow
-                className="w-full sm:w-auto !min-h-[46px] !px-7 text-[0.8rem] tracking-[0.15em] shadow-[0_4px_18px_rgba(194,65,12,0.36)]"
+                className="flex-1 md:flex-initial !min-h-[46px] !px-4 sm:!px-7 text-[0.78rem] sm:text-[0.8rem] tracking-[0.14em] shadow-[0_4px_18px_rgba(194,65,12,0.36)]"
               >
-                Reserve a Table
+                <span className="sm:inline hidden">Reserve a Table</span>
+                <span className="sm:hidden">Reserve</span>
               </Button>
 
               <Button
                 to="/menu"
                 variant="cream"
                 showArrow
-                className="w-full sm:w-auto !min-h-[46px] !px-6 text-[0.8rem] tracking-[0.15em]"
+                className="flex-1 md:flex-initial !min-h-[46px] !px-4 sm:!px-6 text-[0.78rem] sm:text-[0.8rem] tracking-[0.14em]"
               >
-                Explore Menu
+                <span className="sm:inline hidden">Explore Menu</span>
+                <span className="sm:hidden">Explore</span>
               </Button>
             </div>
           </div>
