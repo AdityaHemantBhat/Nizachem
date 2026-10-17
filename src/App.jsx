@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
 import { AnimatePresence, MotionConfig, motion } from 'motion/react'
+import { SpeedInsights } from '@vercel/speed-insights/react'
 
 import { IntroContext } from '@/lib/intro'
 import { ScrollTrigger } from '@/lib/animations/setup'
@@ -112,6 +113,8 @@ export default function App() {
         <PageTransition />
 
         {showPreloader && <Preloader onDone={finishIntro} />}
+
+        <SpeedInsights />
       </IntroContext.Provider>
     </MotionConfig>
   )
